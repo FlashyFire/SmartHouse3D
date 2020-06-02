@@ -286,6 +286,7 @@ function main() {
         // Настройка позиции камеры
         frameArea(boxSize * 1.1, boxSize, boxCenter, camera);
         // Настройка управления видом 3D сцены
+        controls.maxPolarAngle = Math.PI / 2;
         controls.maxDistance = boxSize * 10;
         controls.target.copy(boxCenter);
         controls.update();
