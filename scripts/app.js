@@ -210,6 +210,36 @@ function main() {
   selections.forEach(function (selection) { scene.add(selection); });
   lampLights.forEach(function (lampLight) { scene.add(lampLight); });
 
+  // Кондиционирование
+  var snowflakes = [];
+
+  function loadSnowFlake(x, y, z) {
+    const objLoader = new OBJLoader2();
+    objLoader.load('./model/snowflake.obj', (sf) => {
+      sf.scale.set(3, 3, 3);
+      sf.position.set(x, y, z);
+      snowflakes.push(sf);
+      sf.active = false;
+      sf.traverse(function(child) {
+        if (child instanceof THREE.Mesh) {
+          child.material.color.setHex(0xf0f0f0);
+        }
+      });
+      scene.add(sf); 
+    });
+  }
+
+  loadSnowFlake(150, 260, 450);
+  loadSnowFlake(100, 260, -100);
+  loadSnowFlake(-100, 260, 100);
+
+  var cools = [
+    makeCircleHotZone(32, 150, 260, 450),
+    makeCircleHotZone(32, 100, 260, -100),
+    makeCircleHotZone(32, -100, 260, 100),
+  ];
+  cools.forEach(function (cool) { scene.add(cool); });
+
   // Обработка событий мыши (в том числе включение/выключение зон освещения)
   var mousePressed = false;
   var mouseMoveCount = 0;
@@ -248,6 +278,19 @@ function main() {
           lampLights[i].material.transparent = !lampLights[i].material.transparent;
           return;
         }
+    }
+    // Кондиционирование
+    for (i = 0; i < cools.length; i++) {
+      if (raycaster.intersectObject(cools[i]).length > 0) {
+        var sf = snowflakes[i];
+        sf.traverse(function(child) {
+          if (child instanceof THREE.Mesh) {
+              sf.active = !sf.active;
+              child.material.color.setHex(sf.active ? 0x5050ff : 0xf0f0f0);
+          }
+        });
+        return;
+      }
     }
     // Верхнее освещение
     var intersected = raycaster.intersectObjects(lightZones);
